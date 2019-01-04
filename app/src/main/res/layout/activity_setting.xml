@@ -219,7 +219,7 @@
             android:gravity="top"
             android:inputType="textMultiLine"
             android:minLines="20"
-            android:maxLines="1002"
+            android:maxLines="3000"
             android:scrollbars="vertical"
             android:layout_columnSpan="5"
             android:background="@drawable/border_line"/>
