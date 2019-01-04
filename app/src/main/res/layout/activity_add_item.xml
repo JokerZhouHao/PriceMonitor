@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:rowCount="8"
+    android:columnCount="8"
+    android:layout_margin="2dp"
+    android:id="@+id/v_limit_price"
+    >
+
+    <TextView
+        android:height="40dp"
+        android:text=" 类型:"
+        android:gravity="center_vertical |left"
+        android:layout_gravity="fill"
+        android:layout_columnSpan="1"
+        android:layout_columnWeight="0.2"
+        android:textSize="18dp"
+        />
+
+    <EditText
+        android:id="@+id/priceType"
+        android:textSize="18dp"
+        android:gravity="left"
+        android:layout_gravity="fill"
+        android:layout_height="match_parent"
+        android:layout_columnSpan="6"
+        android:layout_columnWeight="2.8"
+        android:hint="BTC/USDT" />
+
+    <TextView
+        android:text=""
+        android:gravity="center"
+        android:textSize="18dp"
+        android:layout_gravity="fill"
+        android:layout_columnSpan="1"
+        android:layout_columnWeight="0.8"
+        />
+
+    <TextView
+        android:height="40dp"
+        android:text=" 出价:"
+        android:gravity="center_vertical |left"
+        android:layout_gravity="fill"
+        android:layout_columnSpan="1"
+        android:layout_columnWeight="0.2"
+        android:textSize="18dp"
+        />
+
+    <EditText
+        android:id="@+id/priceOut"
+        android:textSize="18dp"
+        android:gravity="left"
+        android:layout_gravity="fill"
+        android:layout_height="match_parent"
+        android:layout_columnSpan="6"
+        android:layout_columnWeight="2.8"
+        android:hint="必须以 +或- 开头"/>
+
+    <TextView
+        android:text=""
+        android:gravity="center"
+        android:textSize="18dp"
+        android:layout_gravity="fill"
+        android:layout_columnSpan="1"
+        android:layout_columnWeight="0.8"
+        />
+
+    <Button
+        android:id="@+id/addPrice"
+        android:text="添加出价"
+        android:gravity="center"
+        android:textSize="18dp"
+        android:layout_gravity="center"
+        android:layout_width="150dp"
+        android:layout_columnSpan="8"
+        />
+
+    <TextView
+        android:height="50dp"
+        android:gravity="center"
+        android:textSize="18dp"
+        android:layout_gravity="fill"
+        android:layout_columnSpan="8"
+        android:layout_columnWeight="0.8"
+        />
+
+    <TextView
+        android:height="40dp"
+        android:text=" 类型:"
+        android:gravity="center_vertical |left"
+        android:layout_gravity="fill"
+        android:layout_columnSpan="1"
+        android:layout_columnWeight="0.2"
+        android:textSize="18dp"
+        />
+
+    <EditText
+        android:id="@+id/waveType"
+        android:textSize="18dp"
+        android:gravity="left"
+        android:layout_gravity="fill"
+        android:layout_height="match_parent"
+        android:layout_columnSpan="6"
+        android:layout_columnWeight="2.8"
+        android:hint="BTC/USDT"/>
+
+    <TextView
+        android:text=""
+        android:gravity="center"
+        android:textSize="18dp"
+        android:layout_gravity="fill"
+        android:layout_columnSpan="1"
+        android:layout_columnWeight="0.8"
+        />
+
+    <TextView
+        android:height="40dp"
+        android:text=" 时间间隔:"
+        android:gravity="center_vertical |left"
+        android:layout_gravity="fill"
+        android:layout_columnSpan="1"
+        android:layout_columnWeight="0.2"
+        android:textSize="18dp"
+        />
+
+    <EditText
+        android:id="@+id/waveMinuteSpan"
+        android:inputType="number"
+        android:textSize="18dp"
+        android:gravity="left"
+        android:layout_gravity="fill"
+        android:layout_height="match_parent"
+        android:layout_columnSpan="6"
+        android:layout_columnWeight="2.8"
+        android:hint="必须为正整数"/>
+
+    <TextView
+        android:text="分钟"
+        android:gravity="center"
+        android:textSize="18dp"
+        android:layout_gravity="fill"
+        android:layout_columnSpan="1"
+        android:layout_columnWeight="0.6"
+        />
+
+    <TextView
+        android:height="40dp"
+        android:text=" 振幅:"
+        android:gravity="center_vertical |left"
+        android:layout_gravity="fill"
+        android:layout_columnSpan="1"
+        android:layout_columnWeight="0.2"
+        android:textSize="18dp"
+        />
+
+    <EditText
+        android:id="@+id/waveWave"
+        android:textSize="18dp"
+        android:gravity="left"
+        android:layout_gravity="fill"
+        android:layout_height="match_parent"
+        android:layout_columnSpan="6"
+        android:layout_columnWeight="2.8"
+        android:hint="-100 -- 100"/>
+
+    <TextView
+        android:text="%"
+        android:gravity="center"
+        android:textSize="18dp"
+        android:layout_gravity="fill"
+        android:layout_columnSpan="1"
+        android:layout_columnWeight="0.8"
+        />
+
+    <Button
+        android:id="@+id/addWave"
+        android:text="添加振幅"
+        android:gravity="center"
+        android:textSize="18dp"
+        android:layout_gravity="center"
+        android:layout_width="150dp"
+        android:layout_columnSpan="8"
+        />
+
+</GridLayout>

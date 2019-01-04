@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:rowCount="3"
+    android:columnCount="7"
+    android:background="#777777"
+    android:layout_margin="2dp"
+    >
+
+    <TextView
+        android:id="@+id/tvType"
+        android:layout_height="wrap_content"
+        android:layout_row="0"
+        android:layout_columnWeight="5"
+        android:layout_gravity="fill"
+        android:background="@color/textviewBackground"
+        android:textColor="#555555"
+        android:gravity="center"
+        android:text="ETH/USDT"
+        android:textSize="17dp" />
+
+    <TextView
+        android:width="120dp"
+        android:textSize="17dp"
+        android:id="@+id/curWave"
+        android:text="+00%"
+        android:gravity="center"
+        android:layout_gravity="fill"
+        android:layout_columnSpan="2"
+        android:textStyle="bold"
+        android:background="@color/textviewBackground"
+        android:textColor="#555555"
+        />
+
+    <TextView
+        android:textSize="17dp"
+        android:text="当前价"
+        android:gravity="center"
+        android:layout_gravity="fill"
+        android:layout_row="1"
+        android:layout_column="0"
+        android:layout_columnWeight="5"
+        android:background="@color/textviewBackground"
+        android:textColor="#555555"
+        />
+
+    <TextView
+        android:width="120dp"
+        android:id="@+id/curPrice"
+        android:textSize="17dp"
+        android:text="0.00$"
+        android:gravity="center"
+        android:layout_gravity="fill"
+        android:layout_columnWeight="2"
+        android:background="@color/textviewBackground"
+        android:textColor="#555555"
+        />
+
+
+    <TextView
+        android:id="@+id/waveMinuteSpan"
+        android:textSize="17dp"
+        android:text="3分钟"
+        android:gravity="center"
+        android:layout_gravity="fill"
+        android:layout_row="2"
+        android:layout_column="0"
+        android:layout_columnWeight="5"
+        android:background="@color/textviewBackground"
+        android:textColor="#555555"
+        />
+
+    <TextView
+        android:width="120dp"
+        android:textSize="17dp"
+        android:id="@+id/exceptWave"
+        android:text="+0.00%"
+        android:gravity="center"
+        android:layout_gravity="fill"
+        android:layout_columnWeight="2"
+        android:textColor="#555555"
+        android:background="@color/textviewBackground"
+        />
+
+    <!--<Button-->
+        <!--android:text="DEL"-->
+        <!--android:background="@color/textviewBackground"-->
+        <!--android:layout_row="0"-->
+        <!--android:layout_rowWeight="1"-->
+        <!--android:layout_rowSpan="2"-->
+        <!--style="?android:attr/buttonStyleSmall"/>-->
+</GridLayout>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget0"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:text="计算标准体重"
+        android:textSize="20sp"/>
+
+    <TextView
+        android:id="@+id/text1"
+        android:layout_width="wrap_content"
+        android:layout_height="96px"
+        android:text="身高（cm）"
+        android:textSize="18sp"/>
+
+    <TextView
+        android:id="@+id/text2"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:text="text2"
+        android:textSize="18sp"/>
+
+    <RadioGroup
+        android:id="@+id/sex"
+        android:layout_width="300px"
+        android:layout_height="100px"
+        android:layout_x="97px"
+        android:layout_y="98px"
+        android:orientation="horizontal"
+        android:checkedButton="@+id/sex1">
+
+        <RadioButton
+            android:id="@+id/sex1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="男"
+            android:layout_x="45dp"
+            android:layout_y="173dp"/>
+
+        <RadioButton
+            android:id="@+id/sex2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="女"
+            android:layout_x="45dp"
+            android:layout_y="173dp"/>
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/button1"
+        android:layout_width="192px"
+        android:layout_height="96px"
+        android:text="计算"/>
+
+</LinearLayout>

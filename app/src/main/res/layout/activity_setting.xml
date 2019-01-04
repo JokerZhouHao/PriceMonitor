@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:scrollbars="vertical"
+    android:fadingEdge="vertical"
+    android:layout_margin="2dp"
+    android:id="@+id/myscroll"
+     >
+    <GridLayout
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:rowCount="5"
+        android:columnCount="5"
+        android:layout_margin="2dp"
+        android:id="@+id/v_limit_price"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        >
+
+        <!-- 声音、振动设置          -->
+        <TextView
+            android:height="40dp"
+            android:text=" 声音提醒:"
+            android:gravity="center"
+            android:layout_gravity="fill"
+            android:layout_columnSpan="1"
+            android:textSize="18dp"
+            />
+
+        <RadioGroup
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="fill"
+            android:layout_columnSpan="4"
+            android:orientation="horizontal"
+            >
+            <RadioButton
+                android:id="@+id/soundOn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="fill"
+                android:layout_marginLeft="10dp"
+                android:text="开"
+                android:textSize="18dp"
+                android:layout_columnSpan="2"
+                android:layout_columnWeight="1"/>
+
+            <RadioButton
+                android:id="@+id/soundClose"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="fill"
+                android:layout_marginLeft="90dp"
+                android:text="关"
+                android:textSize="18dp"
+                android:layout_columnSpan="2"
+                android:layout_columnWeight="1"/>
+        </RadioGroup>
+
+        <TextView
+            android:height="40dp"
+            android:text=" 振动提醒:"
+            android:gravity="center"
+            android:layout_gravity="fill"
+            android:layout_columnSpan="1"
+            android:textSize="18dp"
+            />
+
+        <RadioGroup
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="fill"
+            android:layout_columnSpan="4"
+            android:orientation="horizontal"
+            >
+            <RadioButton
+                android:id="@+id/vibrateOn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="fill"
+                android:layout_marginLeft="10dp"
+                android:text="开"
+                android:textSize="18dp"
+                android:layout_columnSpan="2"
+                android:layout_columnWeight="1"/>
+
+            <RadioButton
+                android:id="@+id/vibrateClose"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="fill"
+                android:layout_marginLeft="90dp"
+                android:text="关"
+                android:textSize="18dp"
+                android:layout_columnSpan="2"
+                android:layout_columnWeight="1"/>
+        </RadioGroup>
+
+        <Button
+            android:id="@+id/setSoundAndVibrate"
+            android:text="确定"
+            android:gravity="center"
+            android:textSize="18dp"
+            android:layout_gravity="center"
+            android:layout_width="150dp"
+            android:layout_columnSpan="5"
+            />
+
+        <TextView
+            android:height="50dp"
+            android:gravity="center"
+            android:textSize="18dp"
+            android:layout_gravity="fill"
+            android:layout_columnSpan="5"
+            android:layout_columnWeight="0.8"
+            />
+
+        <!-- 服务器地址设置          -->
+        <EditText
+            android:id="@+id/serviceAdd"
+            android:hint="服务器地址:端口"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:enabled="true"
+            android:gravity="top"
+            android:inputType="textMultiLine"
+            android:minLines="1"
+            android:maxLines="3"
+            android:scrollbars="vertical"
+            android:layout_columnSpan="5"
+            android:background="@drawable/border_line"/>
+
+        <Button
+            android:id="@+id/updateServeAddr"
+            android:text="更新"
+            android:gravity="center"
+            android:textSize="18dp"
+            android:layout_gravity="center"
+            android:layout_width="150dp"
+            android:layout_columnSpan="5"
+            />
+
+        <TextView
+            android:height="50dp"
+            android:gravity="center"
+            android:textSize="18dp"
+            android:layout_gravity="fill"
+            android:layout_columnSpan="5"
+            android:layout_columnWeight="0.8"
+            />
+
+        <!-- 可达性测试          -->
+        <EditText
+
+            android:id="@+id/etAddTest"
+            android:hint="网址"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:enabled="true"
+            android:gravity="top"
+            android:inputType="textMultiLine"
+            android:minLines="8"
+            android:maxLines="10"
+            android:scrollbars="vertical"
+            android:layout_columnSpan="5"
+            android:background="@drawable/border_line"/>
+
+        <Button
+            android:id="@+id/priceAddrTest"
+            android:text="测试"
+            android:gravity="center"
+            android:textSize="18dp"
+            android:layout_gravity="center"
+            android:layout_width="150dp"
+            android:layout_column="0"
+            android:layout_columnSpan="2"
+            />
+
+        <Button
+            android:id="@+id/priceAddUpdate"
+            android:text="更新"
+            android:gravity="center"
+            android:textSize="18dp"
+            android:layout_gravity="center"
+            android:layout_width="150dp"
+            android:layout_column="3"
+            android:layout_columnSpan="2"
+            />
+
+        <TextView
+            android:height="50dp"
+            android:gravity="center"
+            android:textSize="18dp"
+            android:layout_gravity="fill"
+            android:layout_columnSpan="5"
+            android:layout_columnWeight="0.8"
+            />
+
+        <!-- 日志          -->
+        <TextView
+            android:text="日志"
+            android:height="50dp"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textSize="18dp"
+            android:layout_gravity="fill"
+            android:layout_columnSpan="5"
+            android:layout_columnWeight="0.8"
+            />
+
+        <EditText
+            android:id="@+id/etLog"
+            android:singleLine="false"
+            android:textSize="15dp"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:enabled="true"
+            android:gravity="top"
+            android:inputType="textMultiLine"
+            android:minLines="20"
+            android:maxLines="1002"
+            android:scrollbars="vertical"
+            android:layout_columnSpan="5"
+            android:background="@drawable/border_line"/>
+
+    </GridLayout>
+
+</ScrollView>

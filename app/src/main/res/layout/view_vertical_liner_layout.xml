@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include
+        android:id="@+id/hl1"
+        layout="@layout/view_horizontal_linear_layout" />
+
+    <!--<include-->
+        <!--android:id="@+id/hll2"-->
+        <!--layout="@layout/horizontal_linear_layout" />-->
+
+    <!--<include-->
+        <!--android:id="@+id/hll3"-->
+        <!--layout="@layout/horizontal_linear_layout" />-->
+
+</LinearLayout>
