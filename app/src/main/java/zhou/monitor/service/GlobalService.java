@@ -51,7 +51,7 @@ public class GlobalService extends Service {
 
     // 日志文件路径
     public static String pathLog = "log.txt";
-    public static long logMaxLength = 1024 * 100; // 日志文件的最大大小
+    public static long logMaxLength = 1024 * 150; // 日志文件的最大大小
 
     // 配置文件路径
     public static String pathConfig = "config.txt";
