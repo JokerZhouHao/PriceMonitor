@@ -54,7 +54,7 @@ public class AddItemActivity extends AppCompatActivity {
                     }
 
                     // 测试连接
-                    String result = ConnectTest.test(SettingInfo.priceAddr + type.replace("/", ""));
+                    String result = ConnectTest.test(SettingInfo.priceAddr() + type.replace("/", ""));
                     if(!result.contains("price")){
                         Toast.makeText(AddItemActivity.this, result, Toast.LENGTH_SHORT).show();
                         return;
@@ -97,7 +97,7 @@ public class AddItemActivity extends AppCompatActivity {
                     }
 
                     // 测试连接
-                    String result = ConnectTest.test(SettingInfo.priceAddr + type.replace("/", ""));
+                    String result = ConnectTest.test(SettingInfo.priceAddr() + type.replace("/", ""));
                     if(!result.contains("price")){
                         Toast.makeText(AddItemActivity.this, result, Toast.LENGTH_SHORT).show();
                         return;
@@ -105,7 +105,6 @@ public class AddItemActivity extends AppCompatActivity {
                     result = GlobalService.addWaveItem(type, Integer.parseInt(minuSpan),Double.parseDouble(wave));
                     if(result.equals("ok"))     Toast.makeText(AddItemActivity.this, "添加振幅成功", Toast.LENGTH_SHORT).show();
                     else Toast.makeText(AddItemActivity.this, "添加失败:" + result, Toast.LENGTH_SHORT).show();
-
                 }
             });
 

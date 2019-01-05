@@ -104,5 +104,7 @@ public class PriceRecoder implements Serializable {
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         System.out.println(sdf.format(new Date()));
+        Object obj = new Object();
+        System.out.println(obj.toString());
     }
 }

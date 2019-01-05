@@ -29,7 +29,7 @@
         android:width="120dp"
         android:background="@color/textviewBackground"
         android:gravity="center"
-        android:text="0.0$"
+        android:text="0.0"
         android:textColor="#555555"
         android:textSize="17dp"
         android:textStyle="bold" />
@@ -57,7 +57,7 @@
         android:id="@+id/outPrice"
         android:textSize="17dp"
         android:width="120dp"
-        android:text="0.0$"
+        android:text="0.0"
         android:gravity="center"
         android:layout_gravity="fill"
         android:layout_columnWeight="2"

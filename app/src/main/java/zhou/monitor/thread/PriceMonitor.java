@@ -159,7 +159,7 @@ public class PriceMonitor implements Runnable {
                     return;
                 }
                 // 检查服务器地址是否已变
-                if(!serverAddrStr.equals(SettingInfo.serveAddr)){
+                if(!serverAddrStr.equals(SettingInfo.serveAddr())){
                     GlobalService.setMainActTitle("服务器地址已变");
                     // 关闭连接
                     try {
@@ -177,7 +177,7 @@ public class PriceMonitor implements Runnable {
                     JSONObject json = null;
                     double price = 0.0;
                     for(Map.Entry<String, String> en : type2Type.entrySet()){
-                        String response = client.reqGet(SettingInfo.priceAddr + en.getValue());
+                        String response = client.reqGet(SettingInfo.priceAddr() + en.getValue());
                         try {
                             json = new JSONObject(response);
                         } catch (Exception e){
@@ -275,7 +275,7 @@ public class PriceMonitor implements Runnable {
             return false;
         }
         // 若socket存在，先需关闭socket
-        if(times == 1 && null != client){
+        if(null != client){
             try{
                 client.close();
             } catch (Exception e){

@@ -28,8 +28,6 @@ public class MainView extends ScrollView {
     private int curItemId = 0;
     private TreeMap<Integer, View> allViews = new TreeMap<>(); // 使item显示与添加的顺序一样，用map便于移除item
     private LinearLayout lLayout = null;
-    private MainActivity mainAct = null;
-    private String pathItems = null;
     private ItemLongClickListener itemListener = new ItemLongClickListener();
     private ItemClickListener itemClickListener = new ItemClickListener();
 
@@ -49,17 +47,15 @@ public class MainView extends ScrollView {
         }
     }
 
-    public MainView(Context context, AttributeSet attrs, String pathItems) throws Exception{
+    public MainView(Context context, AttributeSet attrs) throws Exception{
         super(context, attrs);
-        this.mainAct = (MainActivity)context;
         LayoutInflater.from(context).inflate(R.layout.view_scroll, this);
         lLayout = (LinearLayout)findViewById(R.id.mylinear);
-        this.pathItems = pathItems;
         loadItems();
     }
 
-    public MainView(Context context, String pathItems) throws Exception{
-        this(context, null, pathItems);
+    public MainView(Context context) throws Exception{
+        this(context, null);
     }
 
     // item长按监听器
@@ -88,17 +84,17 @@ public class MainView extends ScrollView {
      * @throws Exception
      */
     private void loadItems() throws Exception{
-        BufferedReader br = IOUtility.getBR(GlobalService.pathItems);
+        BufferedReader br = IOUtility.getBR(GlobalService.pathItems());
         String line = null;
         PriceItem item = null;
         View view = null;
         while(null != (line = br.readLine())){
             item = PriceItem.decode(curItemId, line);
-            if(item.isPrice()) view = new PriceView(mainAct, item);
-            else view = new WaveView(mainAct, item);
+            if(item.isPrice()) view = new PriceView(GlobalService.mainAct, item);
+            else view = new WaveView(GlobalService.mainAct, item);
             view.setOnLongClickListener(itemListener);
             view.setOnClickListener(itemClickListener);
-            mainAct.registerForContextMenu(view);
+            GlobalService.mainAct.registerForContextMenu(view);
             allViews.put(curItemId, view);
             lLayout.addView(view);
             curItemId++;
@@ -111,7 +107,7 @@ public class MainView extends ScrollView {
      */
     private void writeToFile(){
         try {
-            BufferedWriter bw = IOUtility.getBW(pathItems);
+            BufferedWriter bw = IOUtility.getBW(GlobalService.pathItems());
             for(Map.Entry<Integer, View> en : allViews.entrySet()){
                 if(en.getValue() instanceof PriceView){
                     bw.write(((PriceView)en.getValue()).getItem().encode());
@@ -188,6 +184,7 @@ public class MainView extends ScrollView {
             msg.setData(bundle);
         }
         bundle.putSerializable(keyType2Recoder, type2Recoder);
+        if(null == handler) handler = new MainViewHandler();
         handler.sendMessage(msg);
     }
 
@@ -196,6 +193,7 @@ public class MainView extends ScrollView {
      * @param type2Recoder
      */
     private void refreshUI(Map<String, PriceRecoder> type2Recoder){
+        if(allViews == null)    return;
         View view = null;
         PriceView priceV = null;
         WaveView waveV = null;

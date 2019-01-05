@@ -21,7 +21,7 @@ public class ConnectTest implements Runnable {
     @Override
     public void run() {
         try{
-            Client client = new Client(SettingInfo.serveAddr);
+            Client client = new Client(SettingInfo.serveAddr());
             result = client.reqGet(reqestAddr);
             client.close();
         }catch (Exception e){

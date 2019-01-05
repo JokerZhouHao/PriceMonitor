@@ -15,10 +15,13 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.Vibrator;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
+import android.widget.GridLayout;
 import android.widget.Toast;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Set;
 
 import zhou.monitor.MainActivity;
 import zhou.monitor.R;
@@ -47,19 +50,19 @@ public class GlobalService extends Service {
     private static boolean noInit = true;
 
     // 基本目录
-    public static  String pathBase = null;
+    private static  String pathBase = null;
 
     // 日志文件路径
-    public static String pathLog = "log.txt";
-    public static long logMaxLength = 1024 * 150; // 日志文件的最大大小
+    private static String pathLog = null;
+    public final static long logMaxLength = 1024 * 150; // 日志文件的最大大小
 
     // 配置文件路径
-    public static String pathConfig = "config.txt";
+    private static String pathConfig = null;
+
     // 记录添加的条目信息文件路径
-    public static String pathItems = "items.txt";
+    private static String pathItems = null;
 
     // Application, MainActivity, MainView
-    private static MyApplication myApp = null;
     public static MainActivity mainAct = null;
     public static MainView mainView = null;
 
@@ -78,8 +81,8 @@ public class GlobalService extends Service {
     // 监控器参数
     public static final int TICK = 60000;   // 查询间隔时间
     public static final int NUMPRICE = 200; // PriceRecoder能记录的price数
-    public static final int TEMPTICK = 2000; // 为避免被封ip故每次查询的每个url，隔2秒钟
-    public static final int RETRYTICK = 60000; // 创建client失败，过多久后尝试
+    public static final int TEMPTICK = 1500; // 为避免被封ip故每次查询的每个url相隔时间
+    public static final int RETRYTICK = 30000; // 创建client失败，过多久后尝试
     public static final int LONGESTFEEDBACKTIME = 600000; // 反馈的最长时间
 
     /**
@@ -96,7 +99,7 @@ public class GlobalService extends Service {
 
             File file = null;
             // 处理日志文件
-            pathLog = pathBase + pathLog;
+            pathLog = pathBase + "log.txt";
             file = new File(pathLog);
             if(!file.exists())  file.createNewFile();
             else if(file.length() >= logMaxLength){ // 已超过限制大小
@@ -105,18 +108,49 @@ public class GlobalService extends Service {
             }
 
             // 处理配置文件
-            pathConfig = pathBase + pathConfig;
+            pathConfig = pathBase + "config.txt";
             file = new File(pathConfig);
-            if(file.exists())   SettingInfo.loadFromFile(pathConfig);
-            else{
-                SettingInfo.writeToFile(pathConfig);
+            if(file.exists()){
+                SettingInfo.loadFromFile(pathConfig);
+            } else{
+                SettingInfo.installInit(pathConfig);
             }
 
             // 处理条目信息文件
-            pathItems = pathBase + pathItems;
+            pathItems = pathBase + "items.txt";
             file = new File(pathItems);
             if(!file.exists())  file.createNewFile();
         }
+    }
+
+    public static String pathLog(){
+        if(pathLog == null) checkStatus();
+        return pathLog;
+    }
+
+    public static String pathItems(){
+        if(pathItems == null) checkStatus();
+        return pathItems;
+    }
+
+    public static String pathConfig(){
+        if(pathConfig==null)    checkStatus();
+        return pathConfig;
+    }
+
+    public static void checkStatus(){
+        if(globalSer != null)   globalSer.inCheckStatus();
+    }
+
+    public void inCheckStatus(){
+        noInit = Boolean.FALSE;
+        if(null == pathBase)    pathBase = this.getFilesDir().getAbsolutePath() + File.separator;
+        if(null == pathLog) pathLog = pathBase + "log.txt";
+        if(null == pathConfig){
+            pathConfig = pathBase + "config.txt";
+            SettingInfo.loadFromFile(pathConfig);
+        }
+        if(null == pathItems)   pathItems = pathBase + "items.txt";
     }
 
     /**
@@ -124,8 +158,8 @@ public class GlobalService extends Service {
      */
     private PriceMonitor innerCreatePriceMonitor(){
         if(null != mainView){
-            priceMonitor = new PriceMonitor(SettingInfo.serveAddr, mainView);
-        } else priceMonitor = new PriceMonitor(SettingInfo.serveAddr, pathItems);
+            priceMonitor = new PriceMonitor(SettingInfo.serveAddr(), mainView);
+        } else priceMonitor = new PriceMonitor(SettingInfo.serveAddr(), pathItems);
         return priceMonitor;
     }
 
@@ -181,18 +215,6 @@ public class GlobalService extends Service {
         // 将创建的Service赋值静态变量，便于使用
         globalSer = this;
 
-//        // 获取电源锁
-//        if(null == wakeLock){
-//            PowerManager powerM = (PowerManager)getSystemService(POWER_SERVICE);
-//            wakeLock = powerM.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, getClass().getCanonicalName());
-//            if(null != wakeLock) {
-//                wakeLock.acquire();
-//            }
-//        }
-
-        // 打开启动服务的时钟
-//        AlarmUtility.startRepeatServiceAlarm(this, 40, GlobalService.class, GlobalService.ACTION);
-
         // 创建价格监视器
         innerCreatePriceMonitor();
         new Thread(priceMonitor).start();
@@ -202,7 +224,7 @@ public class GlobalService extends Service {
         new Thread(priceProtector).start();
 
         // 创建唤醒线程
-        wakeUpThread = new WakeUpThread(this);
+        wakeUpThread = new WakeUpThread();
         wakeUpThread.start();
 
 //        new Thread(new Runnable() {
@@ -216,8 +238,6 @@ public class GlobalService extends Service {
 //                }
 //            }
 //        }).start();
-
-
     }
 
     public PowerManager.WakeLock holdWakeLock(){
@@ -260,6 +280,14 @@ public class GlobalService extends Service {
         // 每出现一次"启动成功"，就创建了一个MainActivity
 //        innerfeedback();
 //        Toast.makeText(this, "启动成功", Toast.LENGTH_SHORT).show();
+//        Log.d("GlobalService", String.valueOf(globalSer == this));
+
+//        Log.d("GLobalService0", mainAct.getFilesDir().getAbsolutePath());
+//        innerCheckStatus();
+
+        if(globalSer != this){
+            globalSer = this;
+        }
         if(wakeUpThread.isSleep())  wakeUpThread.interrupt();
 
         return super.onStartCommand(intent, flags, startId);
@@ -288,7 +316,7 @@ public class GlobalService extends Service {
 
     // 反馈
     public void innerfeedback(){
-        if(SettingInfo.onSound && null==mediaPlayer){
+        if(SettingInfo.onSound() && null==mediaPlayer){
             createMediaPlayer();
 //            try {
 //                mediaPlayer.prepare();
@@ -297,7 +325,7 @@ public class GlobalService extends Service {
 //            }
             mediaPlayer.start();
         }
-        if(SettingInfo.onVibrate && null == vbt){
+        if(SettingInfo.onVibrate() && null == vbt){
             createVibrate();
             if(vbt.hasVibrator()){
                 long[] freq = {100, 200, 250, 200, 300, 400};
@@ -349,7 +377,7 @@ public class GlobalService extends Service {
      * @param title
      */
     public static void setMainActTitle(String title){
-        if(null != globalSer && null != mainAct)    mainAct.setTitle(title);
+        if(null != mainAct)    mainAct.setTitle(title);
     }
 
     public static void feedback(){
@@ -368,7 +396,7 @@ public class GlobalService extends Service {
     }
 
     public static void refreshMainViewUI(HashMap<String, PriceRecoder> type2Recoder){
-        if(null != mainView){
+        if(null != mainView && mainAct != null){
             mainView.refreshAllItemsUI(type2Recoder);
         }
     }
@@ -397,10 +425,10 @@ public class GlobalService extends Service {
      * @return
      */
     public static  String addWaveItem(String transType, int minuteSpan, double wave){
-        if(null != GlobalService.mainView){
-            GlobalService.mainView.addWaveItem(transType, minuteSpan, wave);
-            return "ok";
-        } else return "MainView is null";
+        if(null == GlobalService.mainView)  return "MainView is null";
+        if(null == GlobalService.mainAct)   return "MainAct is null";
+        GlobalService.mainView.addWaveItem(transType, minuteSpan, wave);
+        return "ok";
     }
 
     /**
@@ -411,10 +439,10 @@ public class GlobalService extends Service {
      * @return
      */
     public static String addPriceItem(String transType, boolean isBigger, double outPrice){
-        if(null != GlobalService.mainView){
-            GlobalService.mainView.addPriceItem(transType, isBigger, outPrice);
-            return "ok";
-        } else return "MainView is null";
+        if(null == GlobalService.mainView)  return "MainView is null";
+        if(null == GlobalService.mainAct)   return "MainAct is null";
+        GlobalService.mainView.addPriceItem(transType, isBigger, outPrice);
+        return "ok";
     }
 
     public static void startOneTimeServiceAlarm(long offetMill) {

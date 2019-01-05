@@ -7,13 +7,8 @@ import zhou.monitor.service.GlobalService;
 
 public class WakeUpThread extends Thread {
 
-    private GlobalService service = null;
     private long numRequest = PriceMonitor.numRequest;
     private Boolean isSleep = Boolean.FALSE;
-
-    public WakeUpThread(GlobalService ser){
-        this.service = ser;
-    }
 
     @Override
     public void run() {
@@ -23,20 +18,21 @@ public class WakeUpThread extends Thread {
         while (true){
             isSleep = Boolean.FALSE;
             if(PriceMonitor.numRequest != Long.MAX_VALUE && numRequest >= PriceMonitor.numRequest){ // PriceMonitor的状态未向前推进
-                service.holdWakeLock(); // 请求锁
+                GlobalService.globalSer.holdWakeLock(); // 请求锁
                 while(PriceMonitor.numRequest != Long.MAX_VALUE && numRequest >= PriceMonitor.numRequest){  // 轮询
+                    if(numRequest - PriceMonitor.numRequest > 1)    numRequest = PriceMonitor.numRequest;   // 应对PriceMonitor.numRequest被回收
                     try{
                         Thread.sleep(1000);
                     } catch (Exception e){}
                 }
             }
             if(PriceMonitor.numRequest == Long.MAX_VALUE){  // 线程已终止
-                service.releaseWakeLock();  // 释放锁
+                GlobalService.globalSer.releaseWakeLock();  // 释放锁
                 return;
             } else {
                 numRequest = PriceMonitor.numRequest;
                 GlobalService.startOneTimeServiceAlarm(PriceMonitor.sleepTime); // 添加服务时钟
-                service.releaseWakeLock(); // 释放锁
+                GlobalService.globalSer.releaseWakeLock(); // 释放锁
             }
 //            Log.d("--------- > WakeUp : ", "running . . . . . . . . . . . .. . . ");
             try {

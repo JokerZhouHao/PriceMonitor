@@ -8,7 +8,7 @@ import zhou.monitor.service.GlobalService;
 public class MLog {
     public static void write(String info){
         try {
-            BufferedWriter bw = IOUtility.getBW(GlobalService.pathLog, Boolean.TRUE);
+            BufferedWriter bw = IOUtility.getBW(GlobalService.pathLog(), Boolean.TRUE);
             bw.write(StringFormator.getLogDate());
             bw.write(info);
             bw.close();
@@ -21,7 +21,7 @@ public class MLog {
 
     public static String loadLog(){
         try {
-            BufferedReader br = IOUtility.getBR(GlobalService.pathLog);
+            BufferedReader br = IOUtility.getBR(GlobalService.pathLog());
             StringBuffer sb = new StringBuffer();
             String line = null;
             while(null != (line = br.readLine())){

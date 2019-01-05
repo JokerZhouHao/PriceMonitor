@@ -45,7 +45,7 @@ public class MyApplication extends Application {
 
     // 反馈
     public void feedback(){
-        if(SettingInfo.onSound && null==mediaPlayer){
+        if(SettingInfo.onSound() && null==mediaPlayer){
             createMediaPlayer();
             try {
                 mediaPlayer.prepare();
@@ -54,7 +54,7 @@ public class MyApplication extends Application {
             }
             mediaPlayer.start();
         }
-        if(SettingInfo.onVibrate && null == vbt){
+        if(SettingInfo.onVibrate() && null == vbt){
             createVibrate();
             if(vbt.hasVibrator()){
                 long[] freq = {100, 200, 250, 200, 300, 400};

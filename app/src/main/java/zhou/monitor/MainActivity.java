@@ -5,12 +5,14 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.TextView;
@@ -19,13 +21,14 @@ import android.widget.Toast;
 import zhou.monitor.activity.AddItemActivity;
 import zhou.monitor.activity.SettingActivity;
 import zhou.monitor.service.GlobalService;
+import zhou.monitor.utility.MLog;
 import zhou.monitor.view.MainView;
 
 public class MainActivity extends AppCompatActivity {
 
     private View itemPressed = null;
     private TextView titleView = null;
-    private MainActHandler handler = new MainActHandler();
+    private MainActHandler handler = null;
 
     private static final String keyTitle = "title";
 
@@ -36,7 +39,10 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void handleMessage(Message msg) {
             Bundle bundle = msg.getData();
-            if(bundle.containsKey(keyTitle))     titleView.setText(msg.getData().getString(keyTitle));
+            if(bundle.containsKey(keyTitle)){
+                if(titleView == null) titleView = (TextView)MainActivity.this.getSupportActionBar().getCustomView().findViewById(R.id.tvTitle);
+                titleView.setText(msg.getData().getString(keyTitle));
+            }
         }
     }
 
@@ -52,12 +58,14 @@ public class MainActivity extends AppCompatActivity {
             msg.setData(bundle);
         }
         bundle.putString(keyTitle, title);
+        if(handler == null) handler = new MainActHandler();
         handler.sendMessage(msg);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
+        handler = new MainActHandler();
         // 在前台
         isFront = Boolean.TRUE;
         // 设置在锁屏状态下也能打开
@@ -73,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         try{
             GlobalService.init(this);
             // 初始化MainView
-            GlobalService.mainView = new MainView(this, GlobalService.pathItems);
+            GlobalService.mainView = new MainView(this);
         } catch (Exception e){}
 
         // 设置内容view
@@ -81,6 +89,8 @@ public class MainActivity extends AppCompatActivity {
 
         // 启动服务
         startService(new Intent(getBaseContext(), GlobalService.class));
+
+        Toast.makeText(this, "启动成功", Toast.LENGTH_SHORT).show();
 
 //        new Thread(new Runnable() {
 //            @Override
@@ -164,6 +174,20 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         isFront = Boolean.TRUE;
+//        Log.d("MainAct", "onResume");
+//        Log.d("MainAct", String.valueOf(this == GlobalService.mainAct));
+        if(this != GlobalService.mainAct){  // GlobalService.mainAct改变了
+            if(GlobalService.mainAct == null) MLog.writeLine("MainActivity.onResume mainAct还原前: GlobalService.mainAct = null");
+            else MLog.writeLine("MainActivity.onResume mainAct还原前: " + "GlobalService.mainAct = " + GlobalService.mainAct.toString());
+            GlobalService.mainAct = this;
+        }
+        View view = ((ViewGroup)this.findViewById(android.R.id.content)).getChildAt(0);
+//        Log.d("MainAct", String.valueOf(view == GlobalService.mainView));
+        if(view != GlobalService.mainView){ // GlobalService.mainView改变了
+            if(GlobalService.mainView == null)  MLog.writeLine("MainActivity.onResume mainView还原前: GlobalService.mainView = null");
+            else MLog.writeLine("MainActivity.onResume mainView还原前: GlobalService.mainView = " + GlobalService.mainView.toString());
+            GlobalService.mainView = (MainView)view;
+        }
     }
 
     @Override

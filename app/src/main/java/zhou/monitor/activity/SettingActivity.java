@@ -29,36 +29,34 @@ public class SettingActivity extends AppCompatActivity {
 
     public void init() throws Exception{
         // 声音提醒、振动提醒设置
-        if(SettingInfo.onSound) ((RadioButton)findViewById(R.id.soundOn)).setChecked(true);
+        if(SettingInfo.onSound()) ((RadioButton)findViewById(R.id.soundOn)).setChecked(true);
         else ((RadioButton)findViewById(R.id.soundClose)).setChecked(true);
-        if(SettingInfo.onVibrate) ((RadioButton)findViewById(R.id.vibrateOn)).setChecked(true);
+        if(SettingInfo.onVibrate()) ((RadioButton)findViewById(R.id.vibrateOn)).setChecked(true);
         else ((RadioButton)findViewById(R.id.vibrateClose)).setChecked(true);
         ((Button)findViewById(R.id.setSoundAndVibrate)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view){
-                if(((RadioButton)findViewById(R.id.soundOn)).isChecked())   SettingInfo.onSound = true;
-                else SettingInfo.onSound = false;
-                if(((RadioButton)findViewById(R.id.vibrateOn)).isChecked())  SettingInfo.onVibrate = true;
-                else SettingInfo.onVibrate = false;
-                SettingInfo.writeToFile(GlobalService.pathConfig);
+                if(((RadioButton)findViewById(R.id.soundOn)).isChecked())   SettingInfo.updateOnSound(true);
+                else SettingInfo.updateOnSound(false);
+                if(((RadioButton)findViewById(R.id.vibrateOn)).isChecked())  SettingInfo.updateOnVibrate(true);
+                else SettingInfo.updateOnVibrate(false);
                 Toast.makeText(SettingActivity.this, "设置声音、振动成功", Toast.LENGTH_SHORT).show();
             }
         });
 
         // 初始化服务器地址设置
-        ((EditText)findViewById(R.id.serviceAdd)).setText(SettingInfo.serveAddr);
+        ((EditText)findViewById(R.id.serviceAdd)).setText(SettingInfo.serveAddr());
         ((Button)findViewById(R.id.updateServeAddr)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SettingInfo.serveAddr = ((EditText)findViewById(R.id.serviceAdd)).getText().toString().trim();
-                SettingInfo.writeToFile(GlobalService.pathConfig);
+                SettingInfo.updateServeAddr(((EditText)findViewById(R.id.serviceAdd)).getText().toString().trim());
                 Toast.makeText(SettingActivity.this, "设置服务器地址成功", Toast.LENGTH_SHORT).show();
             }
         });
 
         // 初始化测试栏
         final EditText etAddr = (EditText)findViewById(R.id.etAddTest);
-        etAddr.setText(SettingInfo.priceAddr);
+        etAddr.setText(SettingInfo.priceAddr());
         ((Button)findViewById(R.id.priceAddrTest)).setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
@@ -78,8 +76,7 @@ public class SettingActivity extends AppCompatActivity {
                     String url = priceUrl  + "ETHUSDT";
                     String response = ConnectTest.test(url);
                     etAddr.setText(url + "\n" + response);
-                    SettingInfo.priceAddr = priceUrl;
-                    SettingInfo.writeToFile(GlobalService.pathConfig);
+                    SettingInfo.updatePriceAddr(priceUrl);
                     Toast.makeText(SettingActivity.this, "更新网址成功", Toast.LENGTH_SHORT);
                 } catch (Exception e){}
             }
