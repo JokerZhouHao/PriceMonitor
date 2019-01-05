@@ -115,12 +115,14 @@ public class PriceMonitor implements Runnable {
         int rollSpeed = 0;
         int rollTime = 0;
         PriceRecoder recoder = null;
-        if(!createClient(1)){
-            numRequest = Long.MAX_VALUE;
-            return; // 创建client失败了
-        }
         while (true){
             try {
+                if(numRequest % 10 == 0){    // 每隔10次就重新创建一次socket
+                    if(!createClient(1)){
+                        numRequest = Long.MAX_VALUE;
+                        return; // 创建client失败了
+                    }
+                }
                 // 检查保护线程
                 GlobalService.createProtector();
                 // 检查网络是否已连接
