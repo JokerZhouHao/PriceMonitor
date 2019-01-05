@@ -165,10 +165,10 @@ public class MainActivity extends AppCompatActivity {
         this.itemPressed = view;
     }
 
-    @Override
-    public void finish() {
-        moveTaskToBack(true);
-    }
+//    @Override
+//    public void finish() {
+//        moveTaskToBack(true);
+//    }
 
     @Override
     protected void onResume() {
