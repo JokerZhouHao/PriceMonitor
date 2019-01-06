@@ -3,7 +3,9 @@ package zhou.monitor.entity;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import zhou.monitor.utility.StringFormator;
 
@@ -102,9 +104,13 @@ public class PriceRecoder implements Serializable {
 //        System.out.println(StringFormator.formatPercent(1.2));
 //        System.out.println(df.format(784512112.022000));
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        System.out.println(sdf.format(new Date()));
-        Object obj = new Object();
-        System.out.println(obj.toString());
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//        System.out.println(sdf.format(new Date()));
+//        Object obj = new Object();
+//        System.out.println(obj.toString());
+//        lit.add(23);
+//        System.out.println(lit);
+
+
     }
 }

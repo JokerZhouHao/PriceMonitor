@@ -1,11 +1,14 @@
 package zhou.monitor.service;
 
+import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
@@ -20,8 +23,14 @@ import android.widget.GridLayout;
 import android.widget.Toast;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import zhou.monitor.MainActivity;
 import zhou.monitor.R;
@@ -33,6 +42,7 @@ import zhou.monitor.thread.PriceProtector;
 import zhou.monitor.thread.WakeUpThread;
 import zhou.monitor.utility.AlarmUtility;
 import zhou.monitor.utility.GlobalServiceAlarm;
+import zhou.monitor.utility.MLog;
 import zhou.monitor.view.MainView;
 
 /**
@@ -43,6 +53,9 @@ import zhou.monitor.view.MainView;
 public class GlobalService extends Service {
     // 服务名
     public static final String ACTION = "zhou.monitor.service.GlobalService";
+
+    // IntentFilter
+    private static final IntentFilter screenFilter = new IntentFilter();
 
     // 供外部使用的服务
     public static GlobalService globalSer = null;
@@ -69,7 +82,7 @@ public class GlobalService extends Service {
     // 价格监视器
     private PriceMonitor priceMonitor = null;
     private PriceProtector priceProtector = null;
-    private WakeUpThread wakeUpThread = null;
+//    private WakeUpThread wakeUpThread = null;
 
     // 铃声、振动
     private MediaPlayer mediaPlayer = null;
@@ -77,13 +90,21 @@ public class GlobalService extends Service {
 
     // 电源锁
     private PowerManager.WakeLock wakeLock = null;
+    private PowerManager.WakeLock screemLock = null;
 
     // 监控器参数
     public static final int TICK = 60000;   // 查询间隔时间
     public static final int NUMPRICE = 200; // PriceRecoder能记录的price数
     public static final int TEMPTICK = 1500; // 为避免被封ip故每次查询的每个url相隔时间
     public static final int RETRYTICK = 30000; // 创建client失败，过多久后尝试
-    public static final int LONGESTFEEDBACKTIME = 600000; // 反馈的最长时间
+
+    // 标记是否有通知
+    public static boolean hasNotification = false;
+    // 标记屏幕是否开着
+    public static boolean hasScreenOn = true;
+
+    // 线程池
+    private static  final ThreadPoolExecutor fixedThreadPool = (ThreadPoolExecutor)Executors.newFixedThreadPool(1);
 
     /**
      * 初始化各变量
@@ -159,7 +180,7 @@ public class GlobalService extends Service {
     private PriceMonitor innerCreatePriceMonitor(){
         if(null != mainView){
             priceMonitor = new PriceMonitor(SettingInfo.serveAddr(), mainView);
-        } else priceMonitor = new PriceMonitor(SettingInfo.serveAddr(), pathItems);
+        } else priceMonitor = new PriceMonitor(SettingInfo.serveAddr(), pathItems());
         return priceMonitor;
     }
 
@@ -210,36 +231,51 @@ public class GlobalService extends Service {
         Notification notification = mBuilder.build();
         notification.flags = Notification.FLAG_NO_CLEAR|Notification.FLAG_ONGOING_EVENT;
         startForeground(1, notification);
-//        startForeground(1, mBuilder.build());
 
         // 将创建的Service赋值静态变量，便于使用
         globalSer = this;
 
         // 创建价格监视器
         innerCreatePriceMonitor();
-        new Thread(priceMonitor).start();
+        fixedThreadPool.execute(priceMonitor);
+//        new Thread(priceMonitor).start();
 
         // 创建价格监视器保护线程
-        innerCreateProtector();
-        new Thread(priceProtector).start();
+//        innerCreateProtector();
+//        new Thread(priceProtector).start();
 
         // 创建唤醒线程
-        wakeUpThread = new WakeUpThread();
-        wakeUpThread.start();
+//        wakeUpThread = new WakeUpThread();
+//        wakeUpThread.start();
+
+        // 创建屏幕事件监听器
+        createScreenListener();
+
+        // 创建周期时钟
+        GlobalServiceAlarm.startRepeatServiceAlarm(this, 45, GlobalService.class, GlobalService.ACTION);
 
 //        new Thread(new Runnable() {
 //            @Override
 //            public void run() {
-//                for(int i=0; i<3; i++){
-//                    GlobalServiceAlarm.startOneTimeServiceAlarm(GlobalService.this, 10000, GlobalService.class, GlobalService.ACTION);
+//                try {
+//                        Thread.sleep(20000);
+//                } catch (Exception e){}
+//                GlobalService.this.holdScreemLock();
+//                GlobalService.this.disableKey();
+//                int i = 0;
+//                while (true){
 //                    try {
-//                        Thread.sleep(10000);
-//                    } catch (Exception e)   {}
+//                        Thread.sleep(20000);
+//                    } catch (Exception e){}
+//                    if(i%2==0)  GlobalService.this.holdScreemLock();
+//                    else GlobalService.this.releaseScreemLock();
+//                    i++;
 //                }
 //            }
 //        }).start();
     }
 
+    // 持有wakelock
     public PowerManager.WakeLock holdWakeLock(){
         if(null == wakeLock){
             PowerManager powerM = (PowerManager)getSystemService(POWER_SERVICE);
@@ -251,6 +287,7 @@ public class GlobalService extends Service {
         return wakeLock;
     }
 
+    // 持有wakelock
     public void releaseWakeLock(){
         if(null != wakeLock && wakeLock.isHeld()){
             wakeLock.release();
@@ -277,20 +314,88 @@ public class GlobalService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        // 每出现一次"启动成功"，就创建了一个MainActivity
-//        innerfeedback();
-//        Toast.makeText(this, "启动成功", Toast.LENGTH_SHORT).show();
-//        Log.d("GlobalService", String.valueOf(globalSer == this));
-
-//        Log.d("GLobalService0", mainAct.getFilesDir().getAbsolutePath());
-//        innerCheckStatus();
-
+        // 避免被回收
         if(globalSer != this){
             globalSer = this;
         }
-        if(wakeUpThread.isSleep())  wakeUpThread.interrupt();
+//        wakeUpThread.interrupt();
 
+        // 判断线程是否还活着
+        if(fixedThreadPool.getActiveCount() == 0){
+            this.innerHoldScreemLock();
+            MLog.writeLine("PriceMonitor被杀死 ！！！！！！！！");
+            innerCreatePriceMonitor();
+            fixedThreadPool.execute(priceMonitor);
+            this.innerReleaseScreemLock();
+        }
+
+        // 获取锁
+        this.holdWakeLock();
         return super.onStartCommand(intent, flags, startId);
+    }
+
+
+    // 创建监听屏幕的事件
+    public void createScreenListener(){
+        // 屏幕灭屏广播
+        screenFilter.addAction(Intent.ACTION_SCREEN_OFF);
+        // 屏幕亮屏广播
+        screenFilter.addAction(Intent.ACTION_SCREEN_ON);
+        // 解锁广播
+        screenFilter.addAction(Intent.ACTION_USER_PRESENT);
+        BroadcastReceiver mBatInfoReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(final Context context, final Intent intent) {
+                if(mainAct == null) return;
+                String action = intent.getAction();
+                if (Intent.ACTION_SCREEN_ON.equals(action)) {
+                    hasScreenOn = true;
+                } else if (Intent.ACTION_SCREEN_OFF.equals(action)) {
+//                    MLog.writeLine("ACTION_SCREEN_OFF");
+                    hasScreenOn = false;
+                    hasNotification = false;
+                    showMainActivity();  // 锁屏将MainAct推到前台
+                } else if(Intent.ACTION_USER_PRESENT.equals(action)) {
+//                    MLog.writeLine("解锁");
+                    if(!hasNotification && !PriceMonitor.signTryConnect)    mainAct.moveTaskToBack(true); //移到后台
+                    else{
+                        showMainActivity();
+                        hasNotification = false;   // 重置状态
+                    }
+                }
+            }
+        };
+        registerReceiver(mBatInfoReceiver, screenFilter);
+    }
+
+    // 获得屏幕锁
+    public static void holdScreemLock(){
+        if(globalSer == null)   return;
+        globalSer.innerHoldScreemLock();
+    }
+
+    private void innerHoldScreemLock(){
+        // 获取电源管理器对象
+        if(screemLock == null){
+            PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+            // 获取PowerManager.WakeLock对象,后面的参数|表示同时传入两个值,最后的是LogCat里用的Tag
+            screemLock = pm.newWakeLock(PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.SCREEN_DIM_WAKE_LOCK,
+                    getClass().getCanonicalName());
+            if(null != screemLock)  screemLock.acquire(); // 点亮屏幕
+        }
+    }
+
+    // 释放屏幕锁
+    public static  void releaseScreemLock(){
+        if(globalSer == null)   return;
+        globalSer.innerReleaseScreemLock();
+    }
+
+    private void innerReleaseScreemLock(){
+        if(screemLock !=null && screemLock.isHeld()){
+            screemLock.release();
+        }
+        screemLock = null;
     }
 
     /**
@@ -332,7 +437,6 @@ public class GlobalService extends Service {
                 vbt.vibrate(freq, 0);
             }
         }
-        showMainActivity();
     }
 
     // 关闭反馈
@@ -351,14 +455,15 @@ public class GlobalService extends Service {
     /**
      * 打开MainActivity
      */
-    public void showMainActivity(){
+    public static void showMainActivity(){
+        if(globalSer == null)   return;
         if(null == mainAct || !mainAct.isFront()){
-            Intent intent = new Intent(this, MainActivity.class);
+            Intent intent = new Intent(globalSer, MainActivity.class);
 //            startActivity(intent);
             intent.addCategory(Intent.CATEGORY_LAUNCHER);
             intent.setAction(Intent.ACTION_MAIN);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            startActivity(intent);
+            globalSer.startActivity(intent);
 //            Intent intent = new Intent("zhou.monitor.MainActivity");
 //            PendingIntent pi = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 //            try {
@@ -369,7 +474,11 @@ public class GlobalService extends Service {
 //            intent.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
 //            startActivity(intent);
         }
+    }
 
+    // 将MainActivity移到后台
+    public static  void moveMainActToBack(){
+        if(null != mainAct) mainAct.moveTaskToBack(true);
     }
 
     /**

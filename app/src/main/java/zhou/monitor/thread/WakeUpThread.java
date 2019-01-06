@@ -12,9 +12,9 @@ public class WakeUpThread extends Thread {
 
     @Override
     public void run() {
-        try{
-            Thread.sleep(8000);
-        } catch (Exception e){}
+//        try{
+//            Thread.sleep(8000);
+//        } catch (Exception e){}
         while (true){
             isSleep = Boolean.FALSE;
             if(PriceMonitor.numRequest != Long.MAX_VALUE && numRequest >= PriceMonitor.numRequest){ // PriceMonitor的状态未向前推进

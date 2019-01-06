@@ -2,6 +2,7 @@ package zhou.monitor.thread;
 
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import org.json.JSONObject;
 
@@ -10,6 +11,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.microedition.khronos.opengles.GL;
 
 import zhou.monitor.entity.PriceItem;
 import zhou.monitor.entity.PriceRecoder;
@@ -24,28 +27,29 @@ import zhou.monitor.view.MainView;
 import zhou.monitor.view.PriceView;
 import zhou.monitor.view.WaveView;
 
-public class PriceMonitor implements Runnable {
+public class PriceMonitor extends Thread {
 
     // 表示当前线程的状态，若不小于0，则该次请求已完成，否则当前请求为完成，需要持有WakeLock
     // 1：表示本次查询成功执行     2：表示当前无网络      3：表示当前无条目
     // Integer.max：表示线程已结束
     // -1：为供轮询线程状态的对象，能够对该线程设置的状态码
     private int statusCode = 1;
-    public static long numRequest = 0;  // 注意为Long.max线程因无法恢复，而终止
+    public static long numRequest = 1;  // 注意为Long.max线程因无法恢复，而终止
     public static long sleepTime = 0; // 用于告知外界该线程会休眠多久
 
-    private List<PriceItem> allItems = new ArrayList<>();
-    private Map<String, String> type2Type = new HashMap<>();    // 记录ETH/USDT --> ETHUSDT映射
-    private HashMap<String, PriceRecoder> type2Prices = new HashMap<>();
-    private String serverAddrStr = null;
-    private String serverIP = null;
-    private int port = 0;
-    private Client client = null;
-    private Map<String, Double> pricePeek = new HashMap<>();    // 价格板
+    private static final List<PriceItem> allItems = new ArrayList<>();
+    private static final Map<String, String> type2Type = new HashMap<>();    // 记录ETH/USDT --> ETHUSDT映射
+    private static final HashMap<String, PriceRecoder> type2Prices = new HashMap<>();
+    private static String serverAddrStr = null;
+    private static String serverIP = null;
+    private static int port = 0;
+    private static Client client = null;
+    private static final Map<String, Double> pricePeek = new HashMap<>();    // 价格板
+    public static boolean signTryConnect =false;
 
     private PriceMonitor(String serverAddrStr){
         this.serverAddrStr = serverAddrStr;
-        fomatAddr();
+        fomatAddr(serverAddrStr);
     }
 
     public PriceMonitor(String serverAddrStr, MainView mainView){
@@ -80,6 +84,17 @@ public class PriceMonitor implements Runnable {
                 br.close();
             } catch (Exception e){}
         }
+        // 更新type2Type
+        type2Type.clear();
+        for(PriceItem item : allItems){
+            type2Type.put(item.getTransType(), item.getTransType().replace("/", ""));
+        }
+        // 移除不存在的类型
+        List<String> li = new ArrayList<>();
+        for(Map.Entry<String, PriceRecoder> en : type2Prices.entrySet()){
+            if(!type2Type.containsKey(en.getKey())) li.add(en.getKey());
+        }
+        for(String st : li)     type2Prices.remove(st);
     }
 
     /**
@@ -115,16 +130,23 @@ public class PriceMonitor implements Runnable {
         int rollSpeed = 0;
         int rollTime = 0;
         PriceRecoder recoder = null;
+        if(!createClient(1)){
+            numRequest = Long.MAX_VALUE;
+            this.releaseWakeLock(-1);
+            return; // 创建client失败了
+        }
         while (true){
+            MLog.writeLine("PriceMonitor.numRequest = " + String.valueOf(numRequest));
             try {
-                if(numRequest % 10 == 0){    // 每隔10次就重新创建一次socket
+                if(numRequest % 25 == 0){    // 每隔25次就重新创建一次socket
                     if(!createClient(1)){
                         numRequest = Long.MAX_VALUE;
+                        this.releaseWakeLock(-1);
                         return; // 创建client失败了
                     }
                 }
                 // 检查保护线程
-                GlobalService.createProtector();
+//                GlobalService.createProtector();
                 // 检查网络是否已连接
                 if(!NetDetector.isNetworkConnected()){
                     GlobalService.setMainActTitle("无网络");
@@ -133,8 +155,9 @@ public class PriceMonitor implements Runnable {
                             client.close();
                         } catch (Exception e) {}
                     }
-                    numRequest++;
                     sleepTime = GlobalService.TICK;
+                    numRequest++;
+                    this.releaseWakeLock(sleepTime);
                     try {
                         Thread.sleep(sleepTime);
                     } catch (Exception e){}
@@ -148,8 +171,9 @@ public class PriceMonitor implements Runnable {
                             client.close();
                         } catch (Exception e){}
                     }
-                    numRequest++;
                     sleepTime = GlobalService.TICK;
+                    numRequest++;
+                    this.releaseWakeLock(sleepTime);
                     try {
                         Thread.sleep(GlobalService.TICK);
                     } catch (Exception e){}
@@ -158,6 +182,7 @@ public class PriceMonitor implements Runnable {
                 // 必要时恢复连接
                 if((null==client || client.isClose()) && !createClient(1)){
                     numRequest = Long.MAX_VALUE;
+                    this.releaseWakeLock(-1);
                     return;
                 }
                 // 检查服务器地址是否已变
@@ -170,6 +195,7 @@ public class PriceMonitor implements Runnable {
                     // 创建连接
                     if(!createClient(1)){
                         numRequest = Long.MAX_VALUE;
+                        this.releaseWakeLock(-1);
                         return; //  创建失败
                     }
                 }
@@ -183,25 +209,31 @@ public class PriceMonitor implements Runnable {
                         try {
                             json = new JSONObject(response);
                         } catch (Exception e){
-                            GlobalService.setMainActTitle("json解析response异常：" + response);
                             GlobalService.feedback();
+                            MLog.writeLine("json解析response异常：" + response);
+                            GlobalService.setMainActTitle("json解析response异常：" + response);
                             numRequest = Long.MAX_VALUE;
+                            this.releaseWakeLock(-1);
                             return; //  失败
                         }
                         // 参数错误，停止查询，强制要求用户检查
                         if(!json.has("price")){
-                            GlobalService.setMainActTitle("请求地址错误：" + response);
                             GlobalService.feedback();
+                            MLog.writeLine("请求地址错误：" + response);
+                            GlobalService.setMainActTitle("请求地址错误：" + response);
                             numRequest = Long.MAX_VALUE;
+                            this.releaseWakeLock(-1);
                             return;
                         }
                         // 处理请求结果
                         try {
                             price = Double.parseDouble(json.getString("price"));
                         } catch (Exception e){
-                            GlobalService.setMainActTitle("json解析price异常：" + response);
                             GlobalService.feedback();
+                            MLog.writeLine("json解析price异常：" + response);
+                            GlobalService.setMainActTitle("json解析price异常：" + response);
                             numRequest = Long.MAX_VALUE;
+                            this.releaseWakeLock(-1);
                             return; //  创建失败
                         }
                         // 添加价格
@@ -220,6 +252,8 @@ public class PriceMonitor implements Runnable {
                     // 检查是否有满足条件的item
                     if(check()){
                         GlobalService.feedback();
+                        GlobalService.hasNotification = true;
+                        GlobalService.showMainActivity();
                     }
                     // 刷新价格板变量
                     refreshPricePeek();
@@ -232,15 +266,18 @@ public class PriceMonitor implements Runnable {
                         break;
                     }
                 }
-                numRequest++;
                 sleepTime = tick;
+                numRequest++;
+                this.releaseWakeLock(sleepTime);
                 try {
                     Thread.sleep(tick);
                 } catch (Exception e){}
             } catch (Exception e){
                 GlobalService.setMainActTitle("PriceMonitor : " + e.getMessage());
+                MLog.writeLine("PriceMonitor.run.catch: " + e.getMessage());
                 if(!createClient(1)) {
                     numRequest = Long.MAX_VALUE;
+                    this.releaseWakeLock(-1);
                     return; //  创建失败
                 }
             }
@@ -260,7 +297,7 @@ public class PriceMonitor implements Runnable {
     /**
      * 格式化地址串
      */
-    private void fomatAddr(){
+    private void fomatAddr(String addrPort){
         String arr[] = null;
         arr = serverAddrStr.split(":");
         serverIP = arr[0].trim();
@@ -273,8 +310,15 @@ public class PriceMonitor implements Runnable {
     private boolean createClient(int times){
         if(times == 11){
             GlobalService.setMainActTitle("创建client " + String.valueOf(times-1) + "次失败 !");
-            GlobalService.feedback();
+//            GlobalService.feedback();
+            GlobalService.releaseScreemLock();
             return false;
+        }
+        // 第3次尝试会点亮屏幕
+        if(times==3){
+            GlobalService.holdScreemLock();
+            GlobalService.showMainActivity();
+            signTryConnect = true;
         }
         // 若socket存在，先需关闭socket
         if(null != client){
@@ -286,6 +330,7 @@ public class PriceMonitor implements Runnable {
         }
         boolean hasException = false;
         try {
+            fomatAddr(SettingInfo.serveAddr());
             client = new Client(serverIP, port);
         } catch (Exception e){
             MLog.writeLine("createClient new client异常" + String.valueOf(times) + "次: " + e.getMessage());
@@ -300,6 +345,11 @@ public class PriceMonitor implements Runnable {
                 return createClient(times + 1);
             }
         } else{
+            if(signTryConnect){
+                GlobalService.moveMainActToBack();
+                signTryConnect = false;
+            }
+            GlobalService.releaseScreemLock();  // 释放屏幕锁
             return true;
         }
     }
@@ -322,5 +372,21 @@ public class PriceMonitor implements Runnable {
             }
         }
         return Boolean.FALSE;
+    }
+
+    // 释放锁并添加时钟
+    private void releaseWakeLock(long sleepTime){
+        if(sleepTime > 0){
+            // 因为MainAct在前台，时钟才能在后台执行
+//            if(!GlobalService.hasNotification && !GlobalService.hasScreenOn)   GlobalService.showMainActivity();
+//            GlobalService.startOneTimeServiceAlarm(sleepTime/5*4); // 添加服务时钟
+//            if(!GlobalService.hasNotification && !GlobalService.hasScreenOn){
+//                try{
+//                    Thread.sleep(1000);
+//                } catch (Exception e){}
+//                GlobalService.moveMainActToBack();
+//            }
+        }
+        GlobalService.globalSer.releaseWakeLock(); // 释放锁
     }
 }

@@ -27,10 +27,12 @@ public class GlobalServiceAlarm {
         }
 
         //触发服务的起始时间
-        long triggerAtTime = SystemClock.elapsedRealtime();
+        long triggerAtTime = System.currentTimeMillis();
 
         //使用AlarmManger的setRepeating方法设置定期执行的时间间隔（seconds秒）和需要执行的Service
-        manager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtTime,
+//        manager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtTime,
+//                seconds * 1000, pendingIntent);
+        manager.setInexactRepeating(AlarmManager.RTC_WAKEUP, triggerAtTime,
                 seconds * 1000, pendingIntent);
     }
 
@@ -47,10 +49,13 @@ public class GlobalServiceAlarm {
         }
 
         //触发服务的起始时间
-        long triggerAtTime = SystemClock.elapsedRealtime();
+//        long triggerAtTime = SystemClock.elapsedRealtime();
+        long triggerAtTime = System.currentTimeMillis();
 
         //使用AlarmManger的setRepeating方法设置一次执行的时间间隔（seconds秒）和需要执行的Service
-        manager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtTime + offetMill, pendingIntent);
+        manager.setExact(AlarmManager.RTC_WAKEUP, triggerAtTime + offetMill, pendingIntent);
+//        manager.setWindow(AlarmManager.RTC_WAKEUP, triggerAtTime + offetMill, 1*1000, pendingIntent);
+//        manager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtTime + offetMill, pendingIntent);
     }
 
 

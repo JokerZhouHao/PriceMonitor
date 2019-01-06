@@ -69,9 +69,12 @@ public class MainActivity extends AppCompatActivity {
         // 在前台
         isFront = Boolean.TRUE;
         // 设置在锁屏状态下也能打开
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED|               //这个在锁屏状态下
-                        WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
-                        | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+//        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED|               //这个在锁屏状态下
+//                        WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+//                        | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
+
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED|
+                WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
 
         // 设置标题栏，在中间添加个滚动显示价格的区域
         getSupportActionBar().setCustomView(R.layout.title_bar);
