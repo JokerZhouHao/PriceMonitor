@@ -279,6 +279,7 @@ public class GlobalService extends Service {
     public PowerManager.WakeLock holdWakeLock(){
         if(null == wakeLock){
             PowerManager powerM = (PowerManager)getSystemService(POWER_SERVICE);
+            if(powerM == null)    return null;
             wakeLock = powerM.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE, getClass().getCanonicalName());
             if(null != wakeLock) {
                 wakeLock.acquire();
@@ -291,8 +292,8 @@ public class GlobalService extends Service {
     public void releaseWakeLock(){
         if(null != wakeLock && wakeLock.isHeld()){
             wakeLock.release();
-            wakeLock = null;
         }
+        wakeLock = null;
     }
 
     @Override
@@ -321,7 +322,7 @@ public class GlobalService extends Service {
 //        wakeUpThread.interrupt();
 
         // 判断线程是否还活着
-        if(fixedThreadPool.getActiveCount() == 0){
+        if(fixedThreadPool != null && fixedThreadPool.getActiveCount() == 0){
             this.innerHoldScreemLock();
             MLog.writeLine("PriceMonitor被杀死 ！！！！！！！！");
             innerCreatePriceMonitor();
@@ -378,6 +379,7 @@ public class GlobalService extends Service {
         // 获取电源管理器对象
         if(screemLock == null){
             PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+            if(pm==null)    return;
             // 获取PowerManager.WakeLock对象,后面的参数|表示同时传入两个值,最后的是LogCat里用的Tag
             screemLock = pm.newWakeLock(PowerManager.ACQUIRE_CAUSES_WAKEUP | PowerManager.SCREEN_DIM_WAKE_LOCK,
                     getClass().getCanonicalName());
@@ -423,11 +425,11 @@ public class GlobalService extends Service {
     public void innerfeedback(){
         if(SettingInfo.onSound() && null==mediaPlayer){
             createMediaPlayer();
-//            try {
-//                mediaPlayer.prepare();
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
+            try {
+                mediaPlayer.prepareAsync();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             mediaPlayer.start();
         }
         if(SettingInfo.onVibrate() && null == vbt){
@@ -444,12 +446,12 @@ public class GlobalService extends Service {
         if(mediaPlayer != null){
             mediaPlayer.stop();
             mediaPlayer.release();
-            mediaPlayer = null;
         }
+        mediaPlayer = null;
         if(vbt != null){
             vbt.cancel();
-            vbt = null;
         }
+        vbt = null;
     }
 
     /**
