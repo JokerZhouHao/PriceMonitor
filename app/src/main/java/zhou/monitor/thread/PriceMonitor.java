@@ -379,7 +379,7 @@ public class PriceMonitor extends Thread {
         if(sleepTime > 0){
             // 因为MainAct在前台，时钟才能在后台执行
 //            if(!GlobalService.hasNotification && !GlobalService.hasScreenOn)   GlobalService.showMainActivity();
-//            GlobalService.startOneTimeServiceAlarm(sleepTime/5*4); // 添加服务时钟
+            GlobalService.startOneTimeServiceAlarm(sleepTime/5*4); // 添加服务时钟
 //            if(!GlobalService.hasNotification && !GlobalService.hasScreenOn){
 //                try{
 //                    Thread.sleep(1000);

@@ -252,7 +252,7 @@ public class GlobalService extends Service {
         createScreenListener();
 
         // 创建周期时钟
-        GlobalServiceAlarm.startRepeatServiceAlarm(this, 45, GlobalService.class, GlobalService.ACTION);
+//        GlobalServiceAlarm.startRepeatServiceAlarm(this, 45, GlobalService.class, GlobalService.ACTION);
 
 //        new Thread(new Runnable() {
 //            @Override
