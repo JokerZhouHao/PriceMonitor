@@ -144,6 +144,9 @@ public class PriceMonitor extends Thread {
                         this.releaseWakeLock(-1);
                         return; // 创建client失败了
                     }
+                    // 打开屏幕
+                    GlobalService.holdScreemLock();
+                    GlobalService.releaseScreemLock();
                 }
                 // 检查保护线程
 //                GlobalService.createProtector();

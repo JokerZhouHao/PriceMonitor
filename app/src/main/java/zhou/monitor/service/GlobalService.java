@@ -257,19 +257,12 @@ public class GlobalService extends Service {
 //        new Thread(new Runnable() {
 //            @Override
 //            public void run() {
-//                try {
-//                        Thread.sleep(20000);
-//                } catch (Exception e){}
-//                GlobalService.this.holdScreemLock();
-//                GlobalService.this.disableKey();
-//                int i = 0;
 //                while (true){
 //                    try {
 //                        Thread.sleep(20000);
 //                    } catch (Exception e){}
-//                    if(i%2==0)  GlobalService.this.holdScreemLock();
-//                    else GlobalService.this.releaseScreemLock();
-//                    i++;
+//                    GlobalService.this.holdScreemLock();
+//                    GlobalService.this.innerReleaseScreemLock();
 //                }
 //            }
 //        }).start();
