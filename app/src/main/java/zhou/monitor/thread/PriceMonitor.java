@@ -144,8 +144,12 @@ public class PriceMonitor extends Thread {
                         this.releaseWakeLock(-1);
                         return; // 创建client失败了
                     }
-                    // 打开屏幕
+                }
+                if(numRequest % 50 == 0){   // 每隔50次，点亮屏幕一次
                     GlobalService.holdScreemLock();
+                    try {
+                        Thread.sleep(30000);
+                    } catch (Exception e){}
                     GlobalService.releaseScreemLock();
                 }
                 // 检查保护线程
