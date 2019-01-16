@@ -251,6 +251,9 @@ public class GlobalService extends Service {
         // 创建屏幕事件监听器
         createScreenListener();
 
+        // 一直阻止系统休眠
+        this.holdWakeLock();
+
         // 创建周期时钟
 //        GlobalServiceAlarm.startRepeatServiceAlarm(this, 45, GlobalService.class, GlobalService.ACTION);
 
@@ -324,7 +327,7 @@ public class GlobalService extends Service {
         }
 
         // 获取锁
-        this.holdWakeLock();
+//        this.holdWakeLock();
         return super.onStartCommand(intent, flags, startId);
     }
 

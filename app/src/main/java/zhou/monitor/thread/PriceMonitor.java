@@ -394,7 +394,7 @@ public class PriceMonitor extends Thread {
 //                GlobalService.moveMainActToBack();
 //            }
         }
-        if(null != GlobalService.globalSer)
-            GlobalService.globalSer.releaseWakeLock(); // 释放锁
+//        if(null != GlobalService.globalSer)
+//            GlobalService.globalSer.releaseWakeLock(); // 释放锁
     }
 }

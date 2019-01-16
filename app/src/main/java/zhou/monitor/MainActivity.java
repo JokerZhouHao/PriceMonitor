@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
         // 启动服务
         startService(new Intent(getBaseContext(), GlobalService.class));
 
-        Toast.makeText(this, "启动成功", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "启动成功", Toast.LENGTH_SHORT).show();
 
 //        new Thread(new Runnable() {
 //            @Override
