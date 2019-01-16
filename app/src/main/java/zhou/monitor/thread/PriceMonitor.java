@@ -145,13 +145,13 @@ public class PriceMonitor extends Thread {
                         return; // 创建client失败了
                     }
                 }
-                if(numRequest % 50 == 0){   // 每隔50次，点亮屏幕一次
-                    GlobalService.holdScreemLock();
-                    try {
-                        Thread.sleep(30000);
-                    } catch (Exception e){}
-                    GlobalService.releaseScreemLock();
-                }
+//                if(numRequest % 50 == 0){   // 每隔50次，点亮屏幕一次
+//                    GlobalService.holdScreemLock();
+//                    try {
+//                        Thread.sleep(30000);
+//                    } catch (Exception e){}
+//                    GlobalService.releaseScreemLock();
+//                }
                 // 检查保护线程
 //                GlobalService.createProtector();
                 // 检查网络是否已连接
@@ -394,7 +394,7 @@ public class PriceMonitor extends Thread {
 //                GlobalService.moveMainActToBack();
 //            }
         }
-//        if(null != GlobalService.globalSer)
-//            GlobalService.globalSer.releaseWakeLock(); // 释放锁
+        if(null != GlobalService.globalSer)
+            GlobalService.globalSer.releaseWakeLock(); // 释放锁
     }
 }
