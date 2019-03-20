@@ -5,5 +5,5 @@
 下载[价格监视器](https://github.com/JokerZhouHao/price_monitor/raw/master/app/release/app-release.apk)
 
 ### 截图
-<img src="https://github.com/JokerZhouHao/price_monitor/blob/master/data/ui1.png" width = "400" height = "150" alt="主界面" align=center /><br/>
-<img src="https://github.com/JokerZhouHao/price_monitor/blob/master/data/ui2.png" width = "400" height = "150" alt="设置界面" align=center />
+<img src="https://github.com/JokerZhouHao/price_monitor/blob/master/data/ui1.png" width = "300" height = "800" alt="主界面" align=center /><br/>
+<img src="https://github.com/JokerZhouHao/price_monitor/blob/master/data/ui2.png" width = "300" height = "800" alt="设置界面" align=center />
